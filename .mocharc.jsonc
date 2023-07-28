@@ -3,5 +3,5 @@
     "ts-node/register",
     "./spec/use"
   ],
-  "spec": "spec/**/*.*spec.js"
+  "spec": "./spec/**/*.*spec.js"
 }
