@@ -1,4 +1,5 @@
 [![nawbc](https://img.shields.io/badge/Github-Follow_nawbc-green?style=flat-square&logo=github)](https://github.com/nawbc)
+![workflow](https://img.shields.io/github/actions/workflow/status/indiebase/passport-paseto/ci.yml?style=flat-square)
 
 ## Install
 
