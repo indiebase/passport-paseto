@@ -1,12 +1,16 @@
 {
   "name": "passport-paseto",
-  "version": "0.0.0-alpha.3",
+  "version": "0.1.0-alpha.0",
   "description": "Paseto passport",
   "main": "./dist/index.js",
   "scripts": {
     "build": "tsc",
     "test": "mocha",
     "prepublishOnly": "npm run build"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   },
   "files": [
     "dist",
