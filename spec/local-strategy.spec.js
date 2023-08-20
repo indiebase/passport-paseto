@@ -24,6 +24,7 @@ describe("Local Strategy", function () {
                   return token;
                 },
                 key: key,
+                version: "V3",
               },
               (p, next) => {
                 payload = p;

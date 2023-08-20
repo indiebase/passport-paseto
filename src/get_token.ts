@@ -10,6 +10,8 @@ export const fromAuthScheme = function (scheme: string) {
   return (req) => {
     const auth = req.headers?.["authorization"];
 
+    if (!auth) return null;
+
     const [prefix, token]: string[] = auth.split(/\s+/g);
 
     return prefix?.trim().toLowerCase() === scheme.toLowerCase() ? token : null;

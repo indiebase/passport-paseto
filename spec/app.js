@@ -18,6 +18,7 @@ export const createApp = async function (port = 3000) {
   app.register(fastifySession, {
     secret: "secret with minimum length of 32 characters",
   });
+
   app.register(fastifyPassport.initialize());
 
   app.start = () =>

@@ -1,6 +1,7 @@
 import { Strategy } from "passport-strategy";
-import { ConsumeOptions, V3 } from "paseto";
+import * as paseto from "paseto";
 import type { KeyObject } from "crypto";
+import * as assert from "assert";
 
 type CustomPasetoTokenFromProvider = (
   req: any,
@@ -12,8 +13,9 @@ type Verified = (err: Error, user: Record<string, any>, info: any) => void;
 export interface LocalPasetoStrategyOptions {
   getToken?: CustomPasetoTokenFromProvider;
   key?: KeyObject | Buffer | string;
-  consumeOptions?: ConsumeOptions<any>;
+  consumeOptions?: paseto.ConsumeOptions<any>;
   passReqToCallback?: boolean;
+  version?: "V1" | "V3";
 }
 
 export class LocalPasetoStrategy extends Strategy {
@@ -21,7 +23,6 @@ export class LocalPasetoStrategy extends Strategy {
 
   private options!: LocalPasetoStrategyOptions;
   private verify!: any;
-  public static generateKey = V3.generateKey;
 
   constructor(
     options: LocalPasetoStrategyOptions,
@@ -36,6 +37,13 @@ export class LocalPasetoStrategy extends Strategy {
     ) => void
   ) {
     super();
+    options = Object.assign({}, { version: "V3" }, options);
+
+    assert.ok(
+      options.version && ["V1", "V3"].includes(options.version),
+      `LocalPasetoStrategy doesn't support ${options.version}`
+    );
+
     if (typeof verify !== "function") {
       throw new TypeError("LocalPasetoStrategy requires a verify callback");
     }
@@ -59,11 +67,9 @@ export class LocalPasetoStrategy extends Strategy {
     _options: LocalPasetoStrategyOptions = {}
   ): Promise<void> {
     const token = await this.options.getToken(req);
-    const payload = await V3.decrypt(
-      token,
-      this.options.key,
-      this.options.consumeOptions
-    ).catch(this.fail);
+    const payload = await paseto[this.options.version]
+      .decrypt(token, this.options.key, this.options.consumeOptions)
+      .catch(this.fail);
 
     this.verified = this.verified.bind(this);
 

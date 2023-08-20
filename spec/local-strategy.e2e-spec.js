@@ -1,15 +1,15 @@
 const { createApp } = require("./app");
 const fastifyPassport = require("@fastify/passport");
 const { LocalPasetoStrategy, fromAuthBearer } = require("../src");
-const { V3 } = require("paseto");
+const paseto = require("paseto");
 const { expect } = require("chai");
 
 describe("Local Strategy:e2e", function () {
-  it("Get token from Authorization bearer", async () => {
-    const app = await createApp();
+  async function testServer(ver) {
+    const app = await createApp(5000);
 
-    const key = await V3.generateKey("local");
-    const token = await V3.encrypt(
+    const key = await paseto[ver].generateKey("local");
+    const token = await paseto[ver].encrypt(
       {
         username: "test",
       },
@@ -25,6 +25,7 @@ describe("Local Strategy:e2e", function () {
         {
           getToken: fromAuthBearer(),
           key,
+          version: ver,
         },
         (payload, done) => {
           expect(payload.username).equal("test");
@@ -49,7 +50,7 @@ describe("Local Strategy:e2e", function () {
 
     await app.start();
 
-    await app.inject({
+    let res = await app.inject({
       method: "GET",
       url: "/test/bearer",
       headers: {
@@ -57,6 +58,19 @@ describe("Local Strategy:e2e", function () {
       },
     });
 
-    app.close();
+    expect(res.statusCode).equal(
+      200,
+      `${ver} get statusCode ${res.statusCode}`
+    );
+
+    await app.close();
+  }
+
+  it("Paseto local strategy V1: header", async () => {
+    await testServer("V1");
+  });
+
+  it("Paseto local strategy V3: header", async () => {
+    await testServer("V3");
   });
 });

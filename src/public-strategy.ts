@@ -1,6 +1,7 @@
 import { Strategy } from "passport-strategy";
-import { ConsumeOptions, V3 } from "paseto";
+import * as paseto from "paseto";
 import type { JsonWebKeyInput, KeyObject, PublicKeyInput } from "crypto";
+import * as assert from "assert";
 
 type CustomPasetoTokenFromProvider = (
   req: any,
@@ -12,8 +13,9 @@ type Verified = (err: Error, user: Record<string, any>, info: any) => void;
 export interface PublicPasetoStrategyOptions {
   getToken?: CustomPasetoTokenFromProvider;
   publicKey?: KeyObject | Buffer | PublicKeyInput | JsonWebKeyInput | string;
-  consumeOptions?: ConsumeOptions<any>;
+  consumeOptions?: paseto.ConsumeOptions<any>;
   passReqToCallback?: boolean;
+  version?: "V1" | "V2" | "V3" | "V4";
 }
 
 export class PublicPasetoStrategy extends Strategy {
@@ -21,7 +23,6 @@ export class PublicPasetoStrategy extends Strategy {
 
   private options!: PublicPasetoStrategyOptions;
   private verify!: any;
-  public static generateKey = V3.generateKey;
 
   constructor(
     options: PublicPasetoStrategyOptions,
@@ -36,6 +37,13 @@ export class PublicPasetoStrategy extends Strategy {
     ) => void
   ) {
     super();
+    options = Object.assign({}, { version: "V4" }, options);
+
+    assert.ok(
+      options.version && ["V1", "V2", "V3", "V4"].includes(options.version),
+      `PublicPasetoStrategy doesn't support ${options.version}`
+    );
+
     if (typeof verify !== "function") {
       throw new TypeError("LocalPasetoStrategy requires a verify callback");
     }
@@ -59,11 +67,9 @@ export class PublicPasetoStrategy extends Strategy {
     _options: PublicPasetoStrategyOptions = {}
   ): Promise<void> {
     const token = await this.options.getToken(req);
-    const payload = await V3.verify(
-      token,
-      this.options.publicKey,
-      this.options.consumeOptions
-    ).catch(this.fail);
+    const payload = await paseto[this.options.version]
+      .verify(token, this.options.publicKey, this.options.consumeOptions)
+      .catch(this.fail);
 
     this.verified = this.verified.bind(this);
 
