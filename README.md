@@ -36,6 +36,7 @@ fastifyPassport.use(
     {
       getToken: fromAuthBearer(),
       key,
+      version: "V3",
     },
     (payload, done) => {
       done(null, { username: "username_test" });
@@ -72,6 +73,7 @@ app.listen();
   - `fromAuthScheme`: extract token from Authorization, e.g. Basic, Digest ...
   - `fromBody`: extract token from request body.
   - `fromQuery`: extract token from request query.
+- version：`V1` | `V3`
 - `consumeOptions`: `<Object>`
   - `assertion`: `<string>` &vert; `<Buffer>` PASETO Implicit Assertion
   - `audience`: `<string>` Expected audience value. An exact match must be found in the payload.
@@ -95,7 +97,11 @@ app.listen();
 
 #### Verify callback `([req], payload, next) => void`
 
-### PublicPasetoStrategy (asymmetric key)
+### PublicPasetoStrategy(options: PublicPasetoStrategyOptions, verify)
+
+#### PublicPasetoStrategyOptions:
+
+- version：`V1` | `V2` | `V3` | `V4`
 
 ```ts
 const fastifyPassport = require("@fastify/passport");
@@ -122,6 +128,7 @@ fastifyPassport.use(
     {
       getToken: fromAuthBearer(),
       publicKey,
+      version: "V3", //default V4
     },
     (payload, done) => {
       done(null, { username: "username_test" });
