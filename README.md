@@ -159,6 +159,6 @@ npm i
 npm test
 ```
 
-## Note Bene
+## Nota Bene
 
 Only test with Fastify.
